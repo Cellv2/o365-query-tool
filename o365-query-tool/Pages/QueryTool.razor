@@ -28,7 +28,18 @@
                                value="msSharePoint" />
                         <label for="connectionTypeSharePoint">SharePoint</label>
                     </div>
-                    <small id="passwordHelpBlock"
+                    @foreach (var connectionType in ConnectionTypes)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="connectionTypeRadios"
+                                   id=@connectionType.Id
+                                   value=@connectionType.Value />
+                            <label for=@connectionType.Id>@connectionType.Label</label>
+                        </div>
+                    }
+                    <small id="connectionTypesHelpBlock"
                            class="form-text text-muted">
                         Which source to use to search for user data
                     </small>
@@ -170,5 +181,49 @@
 </div>
 
 @code {
+    public class ConnectionType
+    {
+        private string _id;
+        public string Id
+        {
+            get { return _id; }
+            set
+            {
+                // we force capitalise the first char it is more readable in dev tools
+                // connectionTypemsGraph vs connectionTypeMsGraph
+                if (!char.IsUpper(value[0]))
+                {
+                    _id = "connectionType" + value.First().ToString().ToUpper() + value.Substring(1);
+                }
+                else
+                {
+                    _id = "connectionType" + value;
+                }
+            }
+        }
+        //public string Id { get; set; }
+        public string Value { get; set; }
+        public string Label { get; set; }
+    };
+    static ConnectionType MsGraphCnnection = new ConnectionType
+    {
+        Id = "MsGraph",
+        Label = "MS Graph",
+        Value = "msGraph"
+    };
+    static ConnectionType SharePointConnection = new ConnectionType
+    {
+        Id = "SharePoint",
+        Label = "SharePoint",
+        Value = "msSharePoint"
+    };
+    List<ConnectionType> ConnectionTypes = new List<ConnectionType>() {
+        MsGraphCnnection,
+        SharePointConnection
+    };
+    //protected async override Task OnInitializedAsync()
+    //{
+    //    //ConnectionTypes.Add()
+    //}
 
 }
