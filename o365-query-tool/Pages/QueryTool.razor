@@ -1,5 +1,9 @@
 ﻿@page "/query-tool"
 
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.Extensions.Logging
+@inject ILogger<QueryTool> Logger
+
 <h3>Query Tool - Template testing</h3>
 
 <!-- Manual input connection template -->
@@ -11,23 +15,7 @@
                     Connection Type
                 </legend>
                 <div class="col-sm-10">
-                    <div class="form-check">
-                        <input class="form-check-input"
-                               type="radio"
-                               name="connectionTypeRadios"
-                               id="connectionTypeMsGraph"
-                               value="msGraph"
-                               checked />
-                        <label for="connectionTypeMsGraph">MS Graph</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input"
-                               type="radio"
-                               name="connectionTypeRadios"
-                               id="connectionTypeSharePoint"
-                               value="msSharePoint" />
-                        <label for="connectionTypeSharePoint">SharePoint</label>
-                    </div>
+                    @* Template this out? https://docs.microsoft.com/en-us/aspnet/core/blazor/forms-validation?view=aspnetcore-3.1#radio-buttons *@
                     @foreach (var connectionType in ConnectionTypes)
                     {
                         <div class="form-check">
@@ -35,10 +23,16 @@
                                    type="radio"
                                    name="connectionTypeRadios"
                                    id=@connectionType.Id
-                                   value=@connectionType.Value />
+                                   value=@connectionType.Value
+                                   @onchange="OnRadioButtonChange" />
                             <label for=@connectionType.Id>@connectionType.Label</label>
                         </div>
                     }
+
+                    @* checked="@(connectionType.Value == @selectedConnectionTypeValue ? "true" : "false")" *@
+
+                    <p>Currently selected: @SelectedConnectionType</p>
+
                     <small id="connectionTypesHelpBlock"
                            class="form-text text-muted">
                         Which source to use to search for user data
@@ -181,6 +175,28 @@
 </div>
 
 @code {
+    public string selectedConnectionTypeValue = MsGraphConnection.Value; // make sure this is set through the UI, else null it out
+
+    void OnRadioButtonChange(ChangeEventArgs changeEventArgs)
+    {
+        //selected = changeEventArgs.Value.ToString();
+        selectedConnectionTypeValue = changeEventArgs.Value.ToString();
+        ConnectionTypes.ForEach(connectionType =>
+        {
+            if (connectionType.Value != changeEventArgs.Value.ToString())
+            {
+                connectionType.Checked = false;
+            } else
+            {
+                connectionType.Checked = true;
+            }
+        });
+        Logger.LogWarning("Setting value");
+        Logger.LogWarning(changeEventArgs.Value.ToString());
+        Logger.LogWarning("Finished");
+    }
+
+
     public class ConnectionType
     {
         private string _id;
@@ -204,23 +220,29 @@
         //public string Id { get; set; }
         public string Value { get; set; }
         public string Label { get; set; }
+        public bool Checked { get; set; }
     };
-    static ConnectionType MsGraphCnnection = new ConnectionType
+    static ConnectionType MsGraphConnection = new ConnectionType
     {
         Id = "MsGraph",
         Label = "MS Graph",
-        Value = "msGraph"
+        Value = "msGraph",
+        Checked = true
     };
     static ConnectionType SharePointConnection = new ConnectionType
     {
         Id = "SharePoint",
         Label = "SharePoint",
-        Value = "msSharePoint"
+        Value = "msSharePoint",
+        Checked = false
     };
     List<ConnectionType> ConnectionTypes = new List<ConnectionType>() {
-        MsGraphCnnection,
+        MsGraphConnection,
         SharePointConnection
     };
+
+    public string SelectedConnectionType = "test";
+
     //protected async override Task OnInitializedAsync()
     //{
     //    //ConnectionTypes.Add()
