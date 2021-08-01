@@ -24,14 +24,13 @@
                                    name="connectionTypeRadios"
                                    id=@connectionType.Id
                                    value=@connectionType.Value
+                                   checked=@(SelectedConnectionTypeValue.Equals(connectionType.Value, StringComparison.OrdinalIgnoreCase))
                                    @onchange="OnRadioButtonChange" />
                             <label for=@connectionType.Id>@connectionType.Label</label>
                         </div>
                     }
 
-                    @* checked="@(connectionType.Value == @selectedConnectionTypeValue ? "true" : "false")" *@
-
-                    <p>Currently selected: @SelectedConnectionType</p>
+                    <p>Currently selected: @SelectedConnectionTypeValue</p>
 
                     <small id="connectionTypesHelpBlock"
                            class="form-text text-muted">
@@ -175,25 +174,11 @@
 </div>
 
 @code {
-    public string selectedConnectionTypeValue = MsGraphConnection.Value; // make sure this is set through the UI, else null it out
+    public string SelectedConnectionTypeValue = MsGraphConnection.Value; // make sure this is set through the UI, else null it out
 
     void OnRadioButtonChange(ChangeEventArgs changeEventArgs)
     {
-        //selected = changeEventArgs.Value.ToString();
-        selectedConnectionTypeValue = changeEventArgs.Value.ToString();
-        ConnectionTypes.ForEach(connectionType =>
-        {
-            if (connectionType.Value != changeEventArgs.Value.ToString())
-            {
-                connectionType.Checked = false;
-            } else
-            {
-                connectionType.Checked = true;
-            }
-        });
-        Logger.LogWarning("Setting value");
-        Logger.LogWarning(changeEventArgs.Value.ToString());
-        Logger.LogWarning("Finished");
+        SelectedConnectionTypeValue = changeEventArgs.Value.ToString();
     }
 
 
@@ -217,24 +202,20 @@
                 }
             }
         }
-        //public string Id { get; set; }
         public string Value { get; set; }
         public string Label { get; set; }
-        public bool Checked { get; set; }
     };
     static ConnectionType MsGraphConnection = new ConnectionType
     {
         Id = "MsGraph",
         Label = "MS Graph",
-        Value = "msGraph",
-        Checked = true
+        Value = "msGraph"
     };
     static ConnectionType SharePointConnection = new ConnectionType
     {
         Id = "SharePoint",
         Label = "SharePoint",
-        Value = "msSharePoint",
-        Checked = false
+        Value = "msSharePoint"
     };
     List<ConnectionType> ConnectionTypes = new List<ConnectionType>() {
         MsGraphConnection,
